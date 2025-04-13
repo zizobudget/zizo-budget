@@ -1,8 +1,4 @@
 import React, { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Globe } from 'lucide-react';
 
 const translations = {
   en: {
@@ -77,38 +73,35 @@ const translations = {
   },
 };
 
-export default function ZizoBudget() {
+export default function BudgetApp() {
   const [language, setLanguage] = useState('sv');
   const t = translations[language];
 
-  const [income, setIncome] = useState(0);
-  const [expenses, setExpenses] = useState(0);
-  const [goal, setGoal] = useState(0);
-  const [months, setMonths] = useState(1);
+  const [income, setIncome] = useState('');
+  const [expenses, setExpenses] = useState('');
+  const [goal, setGoal] = useState('');
+  const [months, setMonths] = useState('');
   const [result, setResult] = useState(null);
   const [message, setMessage] = useState('');
 
   const handleCalculate = () => {
-    const savingsPerMonth = goal && months ? goal / months : 0;
-    setResult(savingsPerMonth);
+    const inc = parseFloat(income) || 0;
+    const exp = parseFloat(expenses) || 0;
+    const g = parseFloat(goal) || 0;
+    const m = parseInt(months) || 1;
 
-    const remaining = income - expenses - savingsPerMonth;
-    if (remaining < 0) {
-      setMessage(t.warning);
-    } else {
-      setMessage(t.ok);
-    }
+    const savingsPerMonth = g / m;
+    setResult(savingsPerMonth.toFixed(2));
+
+    const remaining = inc - exp - savingsPerMonth;
+    setMessage(remaining < 0 ? t.warning : t.ok);
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <div className="flex justify-end items-center space-x-2 mb-4">
-        <Globe className="w-5 h-5" />
-        <select
-          className="border rounded px-2 py-1"
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-        >
+    <div style={{ maxWidth: '600px', margin: '0 auto', padding: 20, fontFamily: 'Arial' }}>
+      <div style={{ marginBottom: 20 }}>
+        <label>🌐 Språk / Language: </label>
+        <select value={language} onChange={(e) => setLanguage(e.target.value)}>
           <option value="sv">Svenska</option>
           <option value="en">English</option>
           <option value="fr">Français</option>
@@ -119,34 +112,31 @@ export default function ZizoBudget() {
         </select>
       </div>
 
-      <Card>
-        <CardContent className="space-y-4 p-4">
-          <div>
-            <label>{t.income}</label>
-            <Input type="number" value={income} onChange={(e) => setIncome(Number(e.target.value))} />
-          </div>
-          <div>
-            <label>{t.expenses}</label>
-            <Input type="number" value={expenses} onChange={(e) => setExpenses(Number(e.target.value))} />
-          </div>
-          <div>
-            <label>{t.goal}</label>
-            <Input type="number" value={goal} onChange={(e) => setGoal(Number(e.target.value))} />
-          </div>
-          <div>
-            <label>{t.months}</label>
-            <Input type="number" value={months} onChange={(e) => setMonths(Number(e.target.value))} />
-          </div>
-          <Button onClick={handleCalculate}>{t.calculate}</Button>
+      <div style={{ marginBottom: 10 }}>
+        <label>{t.income}: </label>
+        <input type="number" value={income} onChange={(e) => setIncome(e.target.value)} />
+      </div>
+      <div style={{ marginBottom: 10 }}>
+        <label>{t.expenses}: </label>
+        <input type="number" value={expenses} onChange={(e) => setExpenses(e.target.value)} />
+      </div>
+      <div style={{ marginBottom: 10 }}>
+        <label>{t.goal}: </label>
+        <input type="number" value={goal} onChange={(e) => setGoal(e.target.value)} />
+      </div>
+      <div style={{ marginBottom: 10 }}>
+        <label>{t.months}: </label>
+        <input type="number" value={months} onChange={(e) => setMonths(e.target.value)} />
+      </div>
 
-          {result !== null && (
-            <div className="mt-4 font-bold">
-              {t.result} {result.toFixed(2)}
-              <div className="mt-2 text-red-600 font-semibold">{message}</div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <button onClick={handleCalculate} style={{ marginTop: 10 }}>{t.calculate}</button>
+
+      {result && (
+        <div style={{ marginTop: 20 }}>
+          <strong>{t.result} {result}</strong>
+          <div style={{ color: message.includes('⚠️') ? 'red' : 'green', marginTop: 10 }}>{message}</div>
+        </div>
+      )}
     </div>
   );
 }
